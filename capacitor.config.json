@@ -1,0 +1,19 @@
+{
+  "appId": "com.guessmynumber.app",
+  "appName": "Guess My Number",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 1500,
+      "backgroundColor": "#F2FFF9"
+    }
+  }
+}
