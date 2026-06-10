@@ -714,7 +714,7 @@ function makeState(){
   return{mode:'offline',count:2,players:[],targets:{},queue:[],qIdx:0,log:{},
     range:{min:1,max:100},entryIdx:0,phase:'setup',rankCounter:0,botState:{},
     peer:null,connections:[],conn:null,myPlayerIndex:-1,myId:null,roomCode:null,connectedSlots:new Set(),
-    overlayActive:false,pendingSync:null};
+    overlayActive:false,pendingSync:null,mySecretNumber:null};
 }
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
@@ -873,8 +873,8 @@ function handleGuestReceive(data){
   }
   else if(data.type==='FULL'){toast('Room is full!');}
   else if(data.type==='VALIDATE'){
-    const tgt=G.players.find(p=>p.id===data.target);
-    let r;if(data.guess===tgt.number)r='correct';else if(data.guess<tgt.number)r='higher';else r='lower';
+    const secret=G.mySecretNumber;
+    let r;if(data.guess===secret)r='correct';else if(data.guess<secret)r='higher';else r='lower';
     G.conn.send({type:'VALIDATE_RESULT',guesser:data.guesser,target:data.target,guess:data.guess,result:r});
   }
   else if(data.type==='SHOW_OVERLAY'){
@@ -924,6 +924,7 @@ function confirmNumber(){
   if(isNaN(val)||val<G.range.min||val>G.range.max){toast('Enter a number between '+G.range.min+' and '+G.range.max);return;}
   G.players[G.mode==='online-guest'?G.myPlayerIndex:G.entryIdx].number=val;
   if(G.mode==='online-guest'){
+    G.mySecretNumber=val;
     G.conn.send({type:'NUMBER_SET',playerIndex:G.myPlayerIndex,number:val});toast('Number locked! Waiting for host…');
     document.getElementById('s-entry').querySelector('.card').innerHTML=
       '<div style="text-align:center;padding:34px 0"><span style="font-size:66px">🔒</span>'+
