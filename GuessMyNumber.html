@@ -1011,8 +1011,6 @@ function submitGuess(){
   if(isNaN(val)){toast('Enter a number!');return;}
   if(val<G.range.min||val>G.range.max){toast('Must be '+G.range.min+'–'+G.range.max);return;}
   document.getElementById('guess-inp').value='';
-  if(G.mode==='online-host'){processGuess(cur.id,tgt.id,val);return;}
-  if(G.mode==='online-guest'){G.conn.send({type:'MAKE_GUESS',guesser:cur.id,target:tgt.id,guess:val});return;}
   let r;
   if(val===tgt.number)r='correct';else if(val<tgt.number)r='higher';else r='lower';
   showResultOverlay(r,val,cur,tgt);
@@ -1029,15 +1027,20 @@ function showResultOverlay(result,guess,cur,tgt){
     ov.style.background='#66DDBB';
     roE.textContent='🎉';roT.textContent='CORRECT!';roN.textContent=String(guess);roS.textContent=cur.name+' cracked it! 🔓';
     ov.classList.add('show');launchConfetti();
-    setTimeout(()=>{ov.classList.remove('show');applyGuess(cur.id,tgt.id,guess,result);},2800);
+    setTimeout(()=>{ov.classList.remove('show');finishGuess(cur.id,tgt.id,guess,result);},2800);
   }else{
     const up=result==='higher';
     ov.style.background=up?'#55CC88':'#85BBFF';
     roE.textContent=up?'📈':'📉';roT.textContent=up?'HIGHER!':'LOWER!';roN.textContent=String(guess);
     roS.textContent=up?'The secret number is bigger!':'The secret number is smaller!';
     ov.classList.add('show');
-    setTimeout(()=>{ov.classList.remove('show');applyGuess(cur.id,tgt.id,guess,result);},1800);
+    setTimeout(()=>{ov.classList.remove('show');finishGuess(cur.id,tgt.id,guess,result);},1800);
   }
+}
+function finishGuess(gid,tid,guess,result){
+  if(G.mode==='online-guest'){G.conn.send({type:'MAKE_GUESS',guesser:gid,target:tid,guess});return;}
+  applyGuess(gid,tid,guess,result);
+  if(G.mode==='online-host')broadcastState();
 }
 function applyGuess(gid,tid,guess,result){
   const key=lk(gid,tid);if(!G.log[key])G.log[key]=[];
