@@ -1,0 +1,18 @@
+# Android / Capacitor build files
+setup-android.bat
+update-android.bat
+package.json
+capacitor.config.json
+GAME_TEMPLATE.md
+android/
+www/
+node_modules/
+
+# Local utility scripts
+git-setup.bat
+push.bat
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
