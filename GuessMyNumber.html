@@ -766,7 +766,10 @@ const PEER_CFG={
   config:{iceServers:[
     {urls:'stun:stun.l.google.com:19302'},
     {urls:'stun:stun1.l.google.com:19302'},
-    {urls:'stun:stun2.l.google.com:19302'},
+    // TURN relay — needed for cross-network play (mobile data, different WiFi)
+    {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turns:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'},
   ]}
 };
 
@@ -1172,22 +1175,21 @@ function goWelcome(){if(G.peer)G.peer.destroy();G=makeState();applyTheme(DEFAULT
 document.getElementById('secret-inp').addEventListener('keydown',e=>{if(e.key==='Enter')confirmNumber();});
 document.getElementById('guess-inp').addEventListener('keydown',e=>{if(e.key==='Enter')submitGuess();});
 
-  // ─── MOBILE KEYBOARD: scroll focused input into view when keyboard opens ─────
-  (function(){
-      function scrollFocusedInput(){
-            const el=document.activeElement;
-            if(el&&(el.id==='secret-inp'||el.id==='guess-inp'))
-                    el.scrollIntoView({behavior:'smooth',block:'center'});
-      }
-      // visualViewport fires when keyboard opens/closes — no layout side-effects
-                            if(window.visualViewport)
-                                  window.visualViewport.addEventListener('resize',()=>setTimeout(scrollFocusedInput,50));
-      // fallback focus handler for browsers without visualViewport
-      ['secret-inp','guess-inp'].forEach(id=>{
-            document.getElementById(id).addEventListener('focus',()=>setTimeout(scrollFocusedInput,350));
-      });
-  })();
-  
+// ─── MOBILE KEYBOARD: scroll focused input into view when keyboard opens ─────
+(function(){
+  function scrollFocusedInput(){
+    const el=document.activeElement;
+    if(el&&(el.id==='secret-inp'||el.id==='guess-inp'))
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  // visualViewport fires when keyboard opens/closes — no layout side-effects
+  if(window.visualViewport)
+    window.visualViewport.addEventListener('resize',()=>setTimeout(scrollFocusedInput,50));
+  // fallback focus handler for browsers without visualViewport
+  ['secret-inp','guess-inp'].forEach(id=>{
+    document.getElementById(id).addEventListener('focus',()=>setTimeout(scrollFocusedInput,350));
+  });
+})();
 
 renderNameInputs();
 checkConsent();
